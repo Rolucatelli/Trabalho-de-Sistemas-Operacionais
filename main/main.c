@@ -34,8 +34,8 @@ int main()
     switch (opcao)
     {
     case 1:
-    
-        printf("debug");
+
+        printf("debug\n");
 
         firstFit(delay, memoria);
         break;

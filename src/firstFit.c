@@ -9,22 +9,29 @@ void firstFit(int delay, int *memoria){
     int processosCriados = 0;
     // Se existir algo no arquivo, a função vai apagar
     limparArquivo("exe/logs/firsFitLog.txt");
+    printf("debug\n");
     no *ptLista = malloc(sizeof(no)); // Criando uma estrutura para alocar os processos.
     ptLista->prox = NULL;
-    printf("debug");
     
     while (1)
     {
-        FILE *arquivo = fopen("exe/logs/firsFitLog.txt", "a");
+        FILE *arquivo = fopen("exe/log/firsFitLog.txt", "a");
         if (tentarCriarProcesso())
         {
+            printf("dentro do if do tentar criar processo\n");
             no *novoNo = alocarNo(&processosCriados);
             inserirListaFim(ptLista, novoNo);
+
+            printf("Processo %d criado com tamanho %d\n", novoNo->id, novoNo->tamanho);
+            fprintf(arquivo, "Processo %d criado com tamanho %d\n", novoNo->id, novoNo->tamanho);
             
         }else{
-            int posicao, tamanho;
-            buscaMemoria(memoria, ((rand() % processosCriados) + 1), &posicao, &tamanho);
+            int posicao, tamanho, random = ((rand() % processosCriados) + 1);
+            buscaMemoria(memoria, random, &posicao, &tamanho);
             limpaMemoria(memoria, posicao, tamanho);
+
+            printf("Processo %d removido da posição %d\n", ((rand() % processosCriados) + 1), posicao);
+            fprintf(arquivo, "Processo %d removido da posição %d\n", ((rand() % processosCriados) + 1), posicao);
         }
 
         if (ptLista->prox)
@@ -48,6 +55,7 @@ void firstFit(int delay, int *memoria){
                             {
                                 memoria[i + k] = noAtual->id;
                             }
+                            printf("Processo %d alocado na posição %d\n", noAtual->id, i);
                             fprintf(arquivo, "Processo %d alocado na posição %d\n", noAtual->id, i);
                             break;
                         }

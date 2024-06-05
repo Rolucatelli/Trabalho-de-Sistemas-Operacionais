@@ -58,12 +58,16 @@ void buscaMemoria(int *memoria, int id, int *posicao, int *tamanho)
 {
 
     int i = 0;
-    while (memoria[i] != id)
+    while (memoria[i] != id && i < 2048)
     {
         i++;
     }
+    if (i >= 2048)
+    {
+        return;
+    }
     *posicao = i++;
-    while (memoria[i] == id)
+    while (memoria[i] == id && i < 2048)
     {
         i++;
     }
