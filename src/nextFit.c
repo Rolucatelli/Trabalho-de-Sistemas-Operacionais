@@ -4,10 +4,11 @@
 #include "../hdr/geral.h"
 #include "../hdr/lista.h"
 
-void firstFit(int delay, int *memoria, int printMemoria, int printMemoriaArquivo)
+void nextFit(int delay, int *memoria, int printMemoria, int printMemoriaArquivo)
 {
     int processosCriados = 0;
-    limparArquivo("exe/log/firstFitLog.txt");   // Se existir algo no arquivo, a função vai apagar
+    int i;
+    limparArquivo("exe/log/nextFitLog.txt");    // Se existir algo no arquivo, a função vai apagar
     no *listaDeEspera = malloc(sizeof(no));     // Criando uma estrutura para armazenar processos para serem alocados na memória
     no *processosAlocados = malloc(sizeof(no)); // Criando uma estrutura para armazenar processos já alocados na memória
     listaDeEspera->prox = NULL;
@@ -15,7 +16,7 @@ void firstFit(int delay, int *memoria, int printMemoria, int printMemoriaArquivo
 
     while (1)
     {
-        FILE *arquivo = fopen("exe/log/firstFitLog.txt", "a");
+        FILE *arquivo = fopen("exe/log/nextFitLog.txt", "a");
         if (tentarCriarProcesso()) // Verifica se deve criar um novo processo
         {
             // Se sim, cria um novo processo e adiciona ele na lista de espera
@@ -57,9 +58,9 @@ void firstFit(int delay, int *memoria, int printMemoria, int printMemoriaArquivo
             no *noAtual = removerLista(listaDeEspera, listaDeEspera->prox->id);
             int id = noAtual->id;
             int cabe;
-            int i;
-
-            for (i = 0; i < 2048; i++)
+            int ant = i - 1;
+            i = i % 2048;
+            while (i != ant) // Por conta que esse é o algoritmo de Next Fit, a condição deve ser mudada para ele percorer a memória toda
             {
                 if (memoria[i] == 0) // Verifica se a posição está vazia
                 {
@@ -78,7 +79,6 @@ void firstFit(int delay, int *memoria, int printMemoria, int printMemoriaArquivo
                     {
                         cabe = 0;
                     }
-
                     if (cabe)
                     {
                         // Se o processo cabe na memória, aloca ele
@@ -99,9 +99,12 @@ void firstFit(int delay, int *memoria, int printMemoria, int printMemoriaArquivo
                         {
                             imprimeMemoriaArquivo(memoria, arquivo);
                         }
-                        i = 2048; // Break
+
+                        i += noAtual->tamanho;
+                        break;
                     }
                 }
+                i = (i + 1) % 2048; // Incrementa a posição
             }
             if (!cabe) // Se o processo não couber na memória, insere ele no comeco da lista de espera
             {

@@ -33,24 +33,24 @@ run: all
 
 $(DEBUG_NAME): $(OBJ)
 	@ echo 'Construindo arquivo de Debug usando o linker GCC: $@'
-	$(CC) $^ -o ./exe/$@ -g
+	@ $(CC) $^ -o ./exe/$@ -g
 	@ echo 'Arquivo de Debug pronto!: $@'
 	@ echo ' '
 
 $(PROJ_NAME): $(OBJ)
 	@ echo 'Construindo o binário usando o linker GCC: $@'
-	$(CC) $^ -o ./exe/$@
+	@ $(CC) $^ -o ./exe/$@
 	@ echo 'Binário pronto: $@'
 	@ echo ' '
 
 ./objects/%.o: ./src/%.c ./hdr/%.h
 	@ echo 'Construindo target usando o compilador GCC: $<'
-	$(CC) $< $(CC_FLAGS) -o $@
+	@ $(CC) $< $(CC_FLAGS) -o $@
 	@ echo ' '
 
 ./objects/main.o: ./main/main.c $(H_SOURCE)
 	@ echo 'Construindo target usando o compilador GCC: $<'
-	$(CC) $< $(CC_FLAGS) -o $@
+	@ $(CC) $< $(CC_FLAGS) -o $@
 	@ echo ' '
 
 objFolder:

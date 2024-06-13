@@ -4,10 +4,10 @@
 #include "../hdr/geral.h"
 #include "../hdr/lista.h"
 
-void firstFit(int delay, int *memoria, int printMemoria, int printMemoriaArquivo)
+void worstFit(int delay, int *memoria, int printMemoria, int printMemoriaArquivo)
 {
     int processosCriados = 0;
-    limparArquivo("exe/log/firstFitLog.txt");   // Se existir algo no arquivo, a função vai apagar
+    limparArquivo("exe/log/worstFitLog.txt");   // Se existir algo no arquivo, a função vai apagar
     no *listaDeEspera = malloc(sizeof(no));     // Criando uma estrutura para armazenar processos para serem alocados na memória
     no *processosAlocados = malloc(sizeof(no)); // Criando uma estrutura para armazenar processos já alocados na memória
     listaDeEspera->prox = NULL;
@@ -15,7 +15,7 @@ void firstFit(int delay, int *memoria, int printMemoria, int printMemoriaArquivo
 
     while (1)
     {
-        FILE *arquivo = fopen("exe/log/firstFitLog.txt", "a");
+        FILE *arquivo = fopen("exe/log/worstFitLog.txt", "a");
         if (tentarCriarProcesso()) // Verifica se deve criar um novo processo
         {
             // Se sim, cria um novo processo e adiciona ele na lista de espera
@@ -58,6 +58,9 @@ void firstFit(int delay, int *memoria, int printMemoria, int printMemoriaArquivo
             int id = noAtual->id;
             int cabe;
             int i;
+            int sobra = 0;
+            int worstSobra = 0;
+            int bestI = -1;
 
             for (i = 0; i < 2048; i++)
             {
@@ -81,29 +84,44 @@ void firstFit(int delay, int *memoria, int printMemoria, int printMemoriaArquivo
 
                     if (cabe)
                     {
-                        // Se o processo cabe na memória, aloca ele
-                        for (int j = 0; j < noAtual->tamanho && (i + j) < 2048; j++)
+                        // Calcula o espaço que sobra após alocar o processo
+                        while (memoria[i + j] == 0 && (i + j) < 2048)
                         {
-                            memoria[i + j] = id;
+                            sobra++;
+                            j++;
                         }
-                        noAtual->prox = NULL;
-                        inserirListaFim(processosAlocados, noAtual); // Insere o processo na lista de processos alocados
-                        printf(CIANO "Processo " AMARELO "%d " CIANO "alocado de " AMARELO "%d" CIANO " até " AMARELO "%d\n" RESET, id, i, i + noAtual->tamanho);
-                        fprintf(arquivo, "Processo %d alocado de %d até %d\n", id, i, i + noAtual->tamanho);
-                        sleep(delay);
-                        if (printMemoria)
+                        // Se o espaço que sobra for maior que o pior espaço que sobrou, ele se torna o pior espaço
+                        if (sobra > worstSobra)
                         {
-                            imprimeMemoria(memoria);
+                            worstSobra = sobra;
+                            bestI = i;
                         }
-                        if (printMemoriaArquivo)
-                        {
-                            imprimeMemoriaArquivo(memoria, arquivo);
-                        }
-                        i = 2048; // Break
+                        sobra = 0;
                     }
                 }
             }
-            if (!cabe) // Se o processo não couber na memória, insere ele no comeco da lista de espera
+            if (bestI != -1) // Se encontrou um espaço para alocar o processo
+            {
+                // Aloca o processo na memória
+                for (int k = 0; k < noAtual->tamanho; k++)
+                {
+                    memoria[bestI + k] = id;
+                }
+                noAtual->prox = NULL;
+                inserirListaFim(processosAlocados, noAtual); // Insere o processo na lista de processos alocados
+                printf(CIANO "Processo " AMARELO "%d " CIANO "alocado de " AMARELO "%d" CIANO " até " AMARELO "%d\n" RESET, id, bestI, bestI + noAtual->tamanho);
+                fprintf(arquivo, "Processo %d alocado de %d até %d\n", id, bestI, bestI + noAtual->tamanho);
+                sleep(delay);
+                if (printMemoria)
+                {
+                    imprimeMemoria(memoria);
+                }
+                if (printMemoriaArquivo)
+                {
+                    imprimeMemoriaArquivo(memoria, arquivo);
+                }
+            }
+            else // Se o processo não couber na memória, insere ele no comeco da lista de espera
             {
                 inserirListaInicio(listaDeEspera, noAtual);
             }
