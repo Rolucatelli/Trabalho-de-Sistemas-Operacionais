@@ -2,7 +2,7 @@
 PROJ_NAME=gerencia_de_memoria
 
 # Nome do arquivo de Debug
-DEBUG_NAME=gerencia_de_memoria
+DEBUG_NAME=$(PROJ_NAME)_debug
 
 # Arquivos .c
 C_SOURCE=$(wildcard ./src/*.c) $(wildcard ./src/algoritmos/*.c) $(wildcard ./src/estruturas/*.c)
@@ -20,7 +20,7 @@ CC=gcc
 CC_FLAGS=-c -W -Wall -pedantic
 
 # Comando utilizado como target do clean
-RM = rm
+RM = rm -rf
 
 #########################
 # Compilação e linkagem #
@@ -60,7 +60,7 @@ exeFolder:
 	@ mkdir -p exe ./exe/log
 
 clean:
-	@ $(RM) ./objects/* ./exe/* *~
+	@ $(RM) ./objects ./exe/log ./exe/$(PROJ_NAME) ./exe/$(DEBUG_NAME) *~
 
 echo:
 	@ echo 'Compilando e linkando o projeto: $(PROJ_NAME)'
